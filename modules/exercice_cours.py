@@ -1,0 +1,116 @@
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+
+def run():
+    st.title("📝 Application du Cours")
+    st.markdown("### Étude d'une poutre avec charges combinées")
+
+# --- INSERTION DE L'IMAGE ---
+    # Correction : Utilisation d'un 'r' devant le chemin et précision du fichier
+    # Assurez-vous que le nom du fichier (ex: image_exercice.png) est correct
+    try:
+        st.image(r"C:/Users/Administrator/Desktop/RDM/CH1/modules/exercice2.png", 
+                 caption="Schéma de la barre et des forces appliquées", 
+                 use_container_width=True)
+    except:
+        st.warning("⚠️ Image non trouvée. Vérifiez que le fichier image est bien dans le dossier 'modules'.")
+
+
+
+    # --- ENONCE ET FIGURE ---
+    st.header("1. Énoncé et Modélisation")
+    
+    # Schéma de la poutre (Statique)
+    
+    
+    st.info(r"""
+    **Données de l'exercice :**
+    - Longueur totale : $L = 10\ \text{m}$
+    - Charge répartie : $q = 20\ \text{kN/m}$
+    - Charge ponctuelle : $Q_1 = 20\ \text{kN}$ située à $x = 3\ \text{m}$
+    """)
+
+    # --- CALCUL DES REACTIONS ---
+    st.header("2. Calcul des Réactions d'Appuis")
+    st.write("Le système est en équilibre. On applique le Principe Fondamental de la Statique (PFS) :")
+    
+    col_calc1, col_calc2 = st.columns(2)
+    
+    with col_calc1:
+        st.markdown("**Équilibre des moments en B :**")
+        st.latex(r"\sum M_B = 0")
+        st.latex(r"R_A \cdot 10 - Q_1 \cdot (10 - 3) - q \cdot 10 \cdot \frac{10}{2} = 0")
+        st.latex(r"10 R_A = 140 + 1000 \implies R_A = 114\ \text{kN}")
+    
+    with col_calc2:
+        st.markdown("**Équilibre des forces verticales :**")
+        st.latex(r"\sum F_y = 0")
+        st.latex(r"R_A + R_B = Q_1 + (q \cdot L)")
+        st.latex(r"114 + R_B = 20 + 200 \implies R_B = 106\ \text{kN}")
+    
+    st.success(r"Résultats validés : $R_A = 114\ \text{kN}$ et $R_B = 106\ \text{kN}$")
+
+    # --- METHODE ANALYTIQUE ---
+    st.header("3. Équations des Efforts Internes (Coupures)")
+    
+    tab1, tab2 = st.tabs(["Zone 1 : $0 \le x \le 3$", "Zone 2 : $3 < x \le 10$"])
+    
+    with tab1:
+        st.markdown("**Coupure avant la charge ponctuelle :**")
+        st.latex(r"V_1(x) = 114 - 20x")
+        st.latex(r"M_1(x) = 114x - 10x^2")
+        # Notez le 'r' avant les guillemets pour éviter l'erreur sur \text
+        st.write(r"À $x=3\text{m}$ : $V = 54\text{ kN}$ et $M = 252\text{ kNm}$")
+
+    with tab2:
+        st.markdown("**Coupure après la charge ponctuelle :**")
+        st.latex(r"V_2(x) = 114 - 20 - 20x = 94 - 20x")
+        st.latex(r"M_2(x) = 114x - 20(x-3) - 10x^2")
+        st.write(r"À $x=3\text{m}$ : $V = 34\text{ kN}$ (Saut de charge)")
+
+    # --- GRAPHIQUES ---
+    st.header("4. Diagrammes des Efforts de Cohésion")
+    
+    x = np.linspace(0, 10, 1000)
+    V = np.where(x <= 3, 114 - 20*x, 94 - 20*x)
+    M = np.where(x <= 3, 114*x - 10*x**2, 114*x - 20*(x-3) - 10*x**2)
+
+    # Effort Tranchant
+    
+    fig_v, ax_v = plt.subplots(figsize=(10, 3.5))
+    ax_v.plot(x, V, color='#00d4ff', linewidth=2.5)
+    ax_v.fill_between(x, V, color='#00d4ff', alpha=0.15)
+    ax_v.axhline(0, color="white", linewidth=1)
+    ax_v.set_title("Diagramme de l'Effort Tranchant V (kN)", color="white")
+    ax_v.set_facecolor("#0e1117")
+    fig_v.patch.set_facecolor("#0e1117")
+    ax_v.tick_params(colors='white')
+    ax_v.grid(True, alpha=0.1)
+    st.pyplot(fig_v)
+
+    # Moment Fléchissant
+    
+    fig_m, ax_m = plt.subplots(figsize=(10, 3.5))
+    ax_m.plot(x, M, color='#ff4b4b', linewidth=2.5)
+    ax_m.fill_between(x, M, color='#ff4b4b', alpha=0.15)
+    ax_m.axhline(0, color="white", linewidth=1)
+    ax_m.set_title("Diagramme du Moment Fléchissant M (kNm)", color="white")
+    ax_m.set_facecolor("#0e1117")
+    fig_m.patch.set_facecolor("#0e1117")
+    ax_m.tick_params(colors='white')
+    ax_m.grid(True, alpha=0.1)
+    st.pyplot(fig_m)
+
+    # --- SYNTHESE FINALE ---
+    st.header("5. Conclusion et Point Critique")
+    
+    col_res1, col_res2 = st.columns(2)
+    with col_res1:
+        st.write("Le moment maximum est atteint quand l'effort tranchant s'annule ($V(x) = 0$) :")
+        st.latex(r"94 - 20x = 0 \implies x = 4.70\ \text{m}")
+    with col_res2:
+        m_max = 114*4.7 - 20*(4.7-3) - 10*(4.7**2)
+        st.metric("Moment Max (M_max)", f"{m_max:.2f} kNm", delta_color="normal")
+
+    st.warning(r"🎯 L'analyse montre que la section la plus sollicitée se trouve à **4.70 mètres** de l'appui A.")
