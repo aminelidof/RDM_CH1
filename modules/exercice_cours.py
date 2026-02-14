@@ -10,7 +10,7 @@ def run():
     # Correction : Utilisation d'un 'r' devant le chemin et précision du fichier
     # Assurez-vous que le nom du fichier (ex: image_exercice.png) est correct
     try:
-        st.image(r"C:/Users/Administrator/Desktop/RDM/CH1/modules/exercice2.png", 
+        st.image("modules/exercice2.png", 
                  caption="Schéma de la barre et des forces appliquées", 
                  use_container_width=True)
     except:
@@ -112,5 +112,6 @@ def run():
     with col_res2:
         m_max = 114*4.7 - 20*(4.7-3) - 10*(4.7**2)
         st.metric("Moment Max (M_max)", f"{m_max:.2f} kNm", delta_color="normal")
+
 
     st.warning(r"🎯 L'analyse montre que la section la plus sollicitée se trouve à **4.70 mètres** de l'appui A.")
