@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 def run():
     st.title("📏 Exercice : Diagrammes N et Sigma")
@@ -100,5 +101,6 @@ except Exception as e:
     st.latex(rf"\Delta L_{{total}} = {deltaL_tot:.4f}\ \text{{mm}}")
 
     st.success(rf"Longueur finale : $L_{{f}} = {400 + deltaL_tot:.4f}\ \text{{mm}}$")
+
 
 
