@@ -147,24 +147,31 @@ def run():
             st.latex(rf"R_A = {Rq} + {F} - {Rb:.2f} = \mathbf{{{Ra:.2f} \text{{ kN}}}}")
 
         with tab_equa:
-            st.markdown("### Analyse par tronçons")
+            st.markdown("### ✂️ Analyse par tronçons (Méthode des coupures)")
+            st.write("On effectue une coupure imaginaire à une distance $x$ de l'origine A pour chaque zone.")
             
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("<h4 style='color: #ff4b4b;'>Zone I : $x \in [0, 6]$</h4>", unsafe_allow_html=True)
+            # --- ZONE 1 ---
+            st.markdown("---")
+            col1_a, col1_b = st.columns([1, 2])
+            with col1_a:
+                st.subheader("Tronçon I")
+                st.info("**$x \in [0, 6]$**")
+            with col1_b:
                 st.latex(rf"V(x) = R_A - qx = {Ra:.2f} - 20x")
-                st.latex(rf"M(x) = R_A x - \frac{{qx^2}}{{2}} = {Ra:.2f}x - 10x^2")
-                st.write(f"**Extrémité C (x=6) :** $M(6) = {Ra*6-10*36:.2f} \text{{ kNm}}$")
-
-            with col2:
-                st.markdown("<h4 style='color: #ff4b4b;'>Zone II : $x \in [6, 8]$</h4>", unsafe_allow_html=True)
+                st.latex(rf"M(x) = R_A \cdot x - \frac{{q \cdot x^2}}{{2}} = {Ra:.2f}x - 10x^2")
+            
+            # --- ZONE 2 ---
+            st.markdown("---")
+            col2_a, col2_b = st.columns([1, 2])
+            with col2_a:
+                st.subheader("Tronçon II")
+                st.info("**$x \in [6, 8]$**")
+            with col2_b:
                 st.latex(rf"V(x) = R_A - R_q = {Ra-Rq:.2f} \text{{ kN}}")
-                st.latex(rf"M(x) = R_A x - R_q(x - 3)")
-                st.write(f"**Extrémité D (x=8) :** $M(8) = {Ra*8-Rq*5:.2f} \text{{ kNm}}$")
+                st.latex(rf"M(x) = R_A \cdot x - R_q \cdot (x - 3) = {Ra:.2f}x - 120(x - 3)")
 
-            st.divider()
-            st.success(f"🔍 **Point critique :** L'effort tranchant s'annule à $x_0 = R_A/q = {x0:.2f} \text{{ m}}$.")
-            st.latex(rf"M_{{max}} = M({x0:.2f}) = \mathbf{{{Mmax:.2f} \text{{ kNm}}}}")
+            st.markdown("---")
+            st.success(f"💡 **Moment Maximum :** L'effort tranchant s'annule à $x_0 = {x0:.2f}m$. En remplaçant dans $M(x)$, on obtient $M_{{max}} = {Mmax:.2f} \text{{ kNm}}$.")
 
         with tab_diag:
             x = np.linspace(0, L_tot, 1000)
@@ -206,3 +213,4 @@ def run():
         if st.button("📖 Étudier la théorie"):
             st.session_state.nav_menu = "📝 Cisaillement / Flexion"
             st.rerun()
+
