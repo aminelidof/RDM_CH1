@@ -123,7 +123,7 @@ def run():
 
         # Gestion du chemin d'image
         base_path = os.path.dirname(__file__)
-        img_path_ex5 = os.path.join(base_path, "exercice5.png")
+        img_path_ex5 = os.path.join(base_path, "exercice2.png")
 
         if os.path.exists(img_path_ex5):
             st.image(img_path_ex5, caption="Modélisation de la poutre", use_container_width=True)
@@ -198,5 +198,6 @@ def run():
             # S'assurer que 'nav_menu' est bien utilisé dans le radio de app.py
             st.session_state.nav_menu = "📝 Cisaillement / Flexion"
             st.rerun()
+
 
 
