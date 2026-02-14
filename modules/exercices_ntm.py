@@ -103,9 +103,6 @@ def run():
         col3, col4 = st.columns(2)
         with col3: L_f = st.number_input("L (m)", value=6.0)
         with col4: P_f = st.number_input("P (kN)", value=40.0)
-
-        
-
         with st.expander("✅ Voir la correction détaillée"):
             Ra_f = P_f / 2
             st.write(f"Réactions : $R_A = R_B = {Ra_f}\ kN$")
@@ -120,25 +117,23 @@ def run():
             ax_f[1].plot(x_f, m_f, color='#ff4b4b')
             st.pyplot(fig_f)
 
-# --- EXERCICE 5 : CAS COMPLET
-     elif choix == "Ex 5 : Cas Combiné (PFS + NTM)":
+# --- EXERCICE 5 : CAS COMPLET ---
+    elif choix == "Ex 5 : Cas Combiné (PFS + NTM)":
         st.subheader("📍 Étude d'une poutre avec charges combinées")
 
-        # --- GESTION DU CHEMIN D'IMAGE ---
-        import os
+        # Gestion du chemin d'image
         base_path = os.path.dirname(__file__)
         img_path_ex5 = os.path.join(base_path, "exercice5.png")
 
         if os.path.exists(img_path_ex5):
             st.image(img_path_ex5, caption="Modélisation de la poutre", use_container_width=True)
         else:
-            st.error("❌ Image 'exercice5.png' non trouvée.")
+            st.error("❌ Image 'exercice5.png' non trouvée dans le dossier modules.")
 
-        # --- DONNÉES ET CALCULS ---
+        # Données et calculs
         L_tot, q_val, Q_val, pos_Q = 10.0, 20.0, 20.0, 3.0
         Ra, Rb = 114.0, 106.0
 
-        # Style pour lisibilité maximale
         st.markdown(f"""
             <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border-left: 5px solid #00d4ff; color: white; margin-bottom: 20px;">
                 <h4 style="color: #00d4ff; margin: 0;">Données du Problème</h4>
@@ -147,31 +142,33 @@ def run():
             </div>
         """, unsafe_allow_html=True)
 
-        # --- MÉTRIQUES RÉACTIONS ---
+        # Métriques Réactions
         c1, c2 = st.columns(2)
         c1.metric("Réaction en A ($R_A$)", f"{Ra} kN", delta="Verticale Haut")
         c2.metric("Réaction en B ($R_B$)", f"{Rb} kN", delta="Verticale Haut")
 
-        # --- GÉNÉRATION DES DIAGRAMMES ---
+        # Génération des diagrammes
         x = np.linspace(0, L_tot, 500)
+        # Effort tranchant V(x)
         V = np.where(x <= pos_Q, Ra - q_val*x, (Ra - Q_val) - q_val*x)
+        # Moment fléchissant M(x)
         M = np.where(x <= pos_Q, Ra*x - (q_val*x**2)/2, Ra*x - Q_val*(x-pos_Q) - (q_val*x**2)/2)
 
-        # Style Matplotlib pour fond sombre (optionnel)
+        # Graphiques
         plt.style.use('dark_background')
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
-        fig.patch.set_facecolor('#0e1117') # Couleur de fond Streamlit
+        fig.patch.set_facecolor('#0e1117')
 
-        # Effort Tranchant V
-        ax1.plot(x, V, color='#00d4ff', lw=2.5, label='V(x)')
+        # V(x)
+        ax1.plot(x, V, color='#00d4ff', lw=2.5)
         ax1.fill_between(x, V, color='#00d4ff', alpha=0.1)
         ax1.axhline(0, color='white', lw=1)
         ax1.set_title("Diagramme de l'Effort Tranchant V(x)", color='#00d4ff')
         ax1.set_ylabel("V (kN)")
         ax1.grid(True, alpha=0.1)
 
-        # Moment Fléchissant M
-        ax2.plot(x, M, color='#ff4b4b', lw=2.5, label='M(x)')
+        # M(x)
+        ax2.plot(x, M, color='#ff4b4b', lw=2.5)
         ax2.fill_between(x, M, color='#ff4b4b', alpha=0.1)
         ax2.axhline(0, color='white', lw=1)
         ax2.set_title("Diagramme du Moment Fléchissant M(x)", color='#ff4b4b')
@@ -181,10 +178,10 @@ def run():
 
         plt.tight_layout()
         st.pyplot(fig)
-
+        
         
 
-        # --- TABLEAU DE SYNTHÈSE ---
+        # Tableau de synthèse
         with st.expander("📊 Détails des valeurs aux points singuliers", expanded=False):
             data = {
                 "Position x (m)": ["0 (Appui A)", "3 (Avant Q)", "3 (Après Q)", "10 (Appui B)"],
@@ -193,12 +190,11 @@ def run():
             }
             st.table(data)
 
-        # --- REDIRECTION ---
+        # Redirection
         st.divider()
         st.success("📝 **Analyse terminée.** Voulez-vous consulter la démonstration mathématique complète ?")
         
         if st.button("🚀 Ouvrir la correction détaillée"):
-            # Vérifiez bien que ce nom est identique à celui dans votre menu app.py
+            # S'assurer que 'nav_menu' est bien utilisé dans le radio de app.py
             st.session_state.nav_menu = "📝 Cisaillement / Flexion"
             st.rerun()
-
