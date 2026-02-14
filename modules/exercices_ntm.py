@@ -112,7 +112,7 @@ def run():
         st.subheader("📍 Étude d'une poutre avec charges combinées")
 
         try:
-            st.image(r"C:/Users/Administrator/Desktop/RDM/CH1/modules/Ex5.png", 
+            st.image("modules/Ex5.png", 
                      caption="Géométrie de la barre et sollicitations", use_container_width=True)
         except:
             st.warning("⚠️ Image 'image_3bb9c8.png' non trouvée.")
@@ -158,3 +158,4 @@ def run():
             st.session_state.nav_menu = "📝 Cisaillement / Flexion" 
 
             st.rerun()
+
