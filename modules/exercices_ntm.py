@@ -104,84 +104,103 @@ def run():
             ax_f[0].step(x_f, v_f, color='#00d4ff')
             ax_f[1].plot(x_f, m_f, color='#ff4b4b')
             st.pyplot(fig_f)
-
-    # --- EXERCICE 5 : CAS COMBINÉ (CORRIGÉ ET ALIGNÉ) ---
+# --- EXERCICE 5 : CAS COMBINÉ (VERSION PRO) ---
     elif choix == "Ex 5 : Cas Combiné (PFS + NTM)":
-        st.subheader("📍 Étude Approfondie : Poutre Iso-statique (Ex 3)")
+        st.subheader("📍 Étude Approfondie : Poutre Iso-statique avec charges mixtes")
 
         base_path = os.path.dirname(__file__)
         img_path = os.path.join(base_path, "Ex4.png")
 
         if os.path.exists(img_path):
-            st.image(img_path, caption="Schéma statique original", use_container_width=True)
+            st.image(img_path, caption="Schéma statique : Charge répartie + Charge ponctuelle", use_container_width=True)
         else:
-            st.error("❌ Fichier 'Ex3.png' introuvable dans le dossier modules.")
+            st.error("❌ Image 'Ex4.png' introuvable.")
 
+        # --- PARAMÈTRES ---
         L1, L2, L3 = 6.0, 2.0, 2.0
         L_tot = L1 + L2 + L3
         q, F = 20.0, 40.0
         dist_F = L1 + L2 
 
+        # --- CALCULS ---
         Rq = q * L1
         Rb = (Rq * (L1/2) + F * dist_F) / L_tot
         Ra = (Rq + F) - Rb
-
         x0 = Ra / q
         Mmax = Ra * x0 - (q * x0**2) / 2 if x0 <= L1 else 0
 
-        tab_diag, tab_pfs, tab_equa = st.tabs(["📊 Graphiques", "⚖️ Équilibre (PFS)", "✂️ Coupures Analytiques"])
+        # --- INTERFACE ---
+        tab_pfs, tab_equa, tab_diag = st.tabs(["⚖️ 1. Équilibre (PFS)", "✂️ 2. Équations (Coupures)", "📊 3. Diagrammes"])
+
+        with tab_pfs:
+            st.markdown("### 1.1 Modélisation de la charge répartie")
+            st.write("On remplace la charge répartie $q$ par sa résultante $R_q$ agissant au centre de gravité du rectangle (à 3m de A).")
+            st.latex(rf"R_q = q \times L_1 = {q} \times {L1} = {Rq} \text{{ kN}}")
+
+            st.markdown("### 1.2 Calcul des réactions aux appuis")
+            st.write("On applique le Principe Fondamental de la Statique (PFS) :")
+            
+            st.latex(rf"\sum M_{{/A}} = 0 \implies (R_q \times 3) + (F \times 8) - (R_B \times 10) = 0")
+            st.latex(rf"R_B = \frac{{{Rq} \times 3 + {F} \times 8}}{{10}} = \mathbf{{{Rb:.2f} \text{{ kN}}}}")
+            
+            st.latex(rf"\sum F_y = 0 \implies R_A + R_B - R_q - F = 0")
+            st.latex(rf"R_A = {Rq} + {F} - {Rb:.2f} = \mathbf{{{Ra:.2f} \text{{ kN}}}}")
+
+        with tab_equa:
+            st.markdown("### Analyse par tronçons")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("<h4 style='color: #ff4b4b;'>Zone I : $x \in [0, 6]$</h4>", unsafe_allow_html=True)
+                st.latex(rf"V(x) = R_A - qx = {Ra:.2f} - 20x")
+                st.latex(rf"M(x) = R_A x - \frac{{qx^2}}{{2}} = {Ra:.2f}x - 10x^2")
+                st.write(f"**Extrémité C (x=6) :** $M(6) = {Ra*6-10*36:.2f} \text{{ kNm}}$")
+
+            with col2:
+                st.markdown("<h4 style='color: #ff4b4b;'>Zone II : $x \in [6, 8]$</h4>", unsafe_allow_html=True)
+                st.latex(rf"V(x) = R_A - R_q = {Ra-Rq:.2f} \text{{ kN}}")
+                st.latex(rf"M(x) = R_A x - R_q(x - 3)")
+                st.write(f"**Extrémité D (x=8) :** $M(8) = {Ra*8-Rq*5:.2f} \text{{ kNm}}$")
+
+            st.divider()
+            st.success(f"🔍 **Point critique :** L'effort tranchant s'annule à $x_0 = R_A/q = {x0:.2f} \text{{ m}}$.")
+            st.latex(rf"M_{{max}} = M({x0:.2f}) = \mathbf{{{Mmax:.2f} \text{{ kNm}}}}")
 
         with tab_diag:
             x = np.linspace(0, L_tot, 1000)
-            V_vals, M_vals = [], []
-            for val in x:
-                if val <= L1:
-                    v, m = Ra - q * val, Ra * val - (q * val**2) / 2
-                elif val <= dist_F:
-                    v, m = Ra - Rq, Ra * val - Rq * (val - L1/2)
-                else:
-                    v, m = Ra - Rq - F, Ra * val - Rq * (val - L1/2) - F * (val - dist_F)
-                V_vals.append(v)
-                M_vals.append(m)
+            V_vals = np.piecewise(x, [x <= L1, (x > L1) & (x <= dist_F), x > dist_F], 
+                                 [lambda x: Ra - q*x, lambda x: Ra - Rq, lambda x: Ra - Rq - F])
+            M_vals = np.piecewise(x, [x <= L1, (x > L1) & (x <= dist_F), x > dist_F],
+                                 [lambda x: Ra*x - (q*x**2)/2, 
+                                  lambda x: Ra*x - Rq*(x-3), 
+                                  lambda x: Ra*x - Rq*(x-3) - F*(x-8)])
 
             plt.style.use('dark_background')
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 9))
             fig.patch.set_facecolor('#0e1117')
+            
+            # Effort Tranchant
             ax1.plot(x, V_vals, color='#00d4ff', lw=2.5)
             ax1.fill_between(x, V_vals, color='#00d4ff', alpha=0.15)
-            ax1.set_title("Diagramme de l'Effort Tranchant V (kN)")
+            ax1.axhline(0, color='white', lw=0.8)
+            ax1.set_title("Effort Tranchant V (kN)", fontsize=14, pad=10)
             
+            # Moment Fléchissant
             ax2.plot(x, M_vals, color='#ff4b4b', lw=2.5)
             ax2.fill_between(x, M_vals, color='#ff4b4b', alpha=0.15)
-            ax2.invert_yaxis()
-            ax2.set_title("Diagramme du Moment Fléchissant M (kNm)")
+            ax2.axhline(0, color='white', lw=0.8)
+            ax2.invert_yaxis() # Fibres tendues vers le bas
+            ax2.set_title("Moment Fléchissant M (kNm)", fontsize=14, pad=10)
+            
+            plt.tight_layout()
             st.pyplot(fig)
 
-        with tab_pfs:
-            st.markdown(f"""
-            <div style="background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; color: white;">
-                <h3 style="color: #00d4ff;">1. Modélisation</h3>
-                <p>$R_q = q \cdot L_1 = {Rq} \text{{ kN}}$ à $x = 3 \text{{ m}}$</p>
-                <h3 style="color: #00d4ff;">2. Équilibres</h3>
-                <p>$\sum M_{{/A}} = 0 \implies R_B = {Rb:.2f} \text{{ kN}}$</p>
-                <p>$\sum F_y = 0 \implies R_A = {Ra:.2f} \text{{ kN}}$</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with tab_equa:
-            st.markdown(f"""
-            <div style="color: white;">
-                <h3 style="color: #ff4b4b;">Tronçon I : [0, 6]</h3>
-                <p>$V(x) = {Ra:.2f} - 20x$ | $M(x) = {Ra:.2f}x - 10x^2$</p>
-                <h3 style="color: #ff4b4b;">Tronçon II : [6, 8]</h3>
-                <p>$V(x) = {Ra-Rq:.2f}$ | $M(x) = {Ra:.2f}x - 120(x-3)$</p>
-            </div>
-            """, unsafe_allow_html=True)
-
+        # --- TABLEAU RÉCAPITULATIF ---
+        st.markdown("### 📋 Tableau récapitulatif des valeurs")
         st.table({
             "Position x (m)": ["0 (A)", f"{x0:.2f} (V=0)", "6 (C)", "8 (D)", "10 (B)"],
-            "Effort V (kN)": [f"{Ra:.2f}", "0.00", f"{Ra-Rq:.2f}", f"{Ra-Rq-F:.2f}", f"{-Rb:.2f}"],
-            "Moment M (kNm)": ["0.00", f"{Mmax:.2f}", f"{Ra*6-360:.2f}", f"{Ra*8-600:.2f}", "0.00"]
+            "Effort Tranchant V (kN)": [f"{Ra:.2f}", "0.00", f"{Ra-Rq:.2f}", f"{Ra-Rq-F:.2f}", f"{-Rb:.2f}"],
+            "Moment Fléchissant M (kNm)": ["0.00", f"{Mmax:.2f}", f"{Ra*6-360:.2f}", f"{Ra*8-600:.2f}", "0.00"]
         })
         
         if st.button("📖 Étudier la théorie"):
