@@ -10,7 +10,7 @@ def run():
     # Correction : Utilisation d'un 'r' devant le chemin et précision du fichier
     # Assurez-vous que le nom du fichier (ex: image_exercice.png) est correct
     try:
-        st.image(r"C:/Users/Administrator/Desktop/RDM/CH1/modules/exercice1.png", 
+        st.image("modules/Ex1.png", 
                  caption="Schéma de la barre et des forces appliquées", 
                  use_container_width=True)
     except:
@@ -95,4 +95,5 @@ def run():
     deltaL_tot = deltaL1 + deltaL2 + deltaL3
     
     st.latex(rf"\Delta L_{{total}} = {deltaL_tot:.4f}\ \text{{mm}}")
+
     st.success(rf"Longueur finale : $L_{{f}} = {400 + deltaL_tot:.4f}\ \text{{mm}}$")
