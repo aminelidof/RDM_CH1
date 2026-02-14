@@ -19,7 +19,7 @@ def run():
         st.subheader("📍 Énoncé : Barre à sections variables (Traction)")
         
         try:
-            st.image(r"C:/Users/Administrator/Desktop/RDM/CH1/modules/Ex1.png", 
+            st.image("modules/Ex1.png", 
                      caption="Géométrie de la barre et sollicitations", use_container_width=True)
         except:
             st.warning("⚠️ Image 'image_3bb9c8.png' non trouvée.")
@@ -156,4 +156,5 @@ def run():
         if st.button("👉 Ouvrir la correction détaillée"):
             # On utilise le nom exact défini dans le dictionnaire menu de app.py
             st.session_state.nav_menu = "📝 Cisaillement / Flexion" 
+
             st.rerun()
