@@ -23,7 +23,7 @@ def run():
         # Détecte le dossier où se trouve le fichier exercices_ntm.py
         base_path = os.path.dirname(__file__)
         # Crée le chemin vers l'image dans le même dossier
-        img_path = os.path.join(base_path, "Exercice1.png")
+        img_path = os.path.join(base_path, "Ex1.png")
 
         try:
             if os.path.exists(img_path):
@@ -171,6 +171,7 @@ def run():
             st.session_state.nav_menu = "📝 Cisaillement / Flexion" 
 
             st.rerun()
+
 
 
 
