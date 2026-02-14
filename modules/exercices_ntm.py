@@ -117,87 +117,98 @@ def run():
             ax_f[1].plot(x_f, m_f, color='#ff4b4b')
             st.pyplot(fig_f)
 
-# --- EXERCICE 5 : CAS COMPLET ---
     elif choix == "Ex 5 : Cas Combiné (PFS + NTM)":
-        st.subheader("📍 Étude d'une poutre avec charges combinées")
+        st.subheader("📍 Étude d'une poutre avec charges combinées (Ex 3)")
 
-        # Gestion du chemin d'image
+        # --- GESTION DE L'IMAGE ---
+        import os
         base_path = os.path.dirname(__file__)
-        img_path_ex5 = os.path.join(base_path, "exercice2.png")
+        # Assurez-vous de renommer votre fichier en 'exercice3.png' sur GitHub
+        img_path_ex3 = os.path.join(base_path, "Ex3.png")
 
-        if os.path.exists(img_path_ex5):
-            st.image(img_path_ex5, caption="Modélisation de la poutre", use_container_width=True)
+        if os.path.exists(img_path_ex3):
+            st.image(img_path_ex3, caption="Schéma statique de la poutre", use_container_width=True)
         else:
-            st.error("❌ Image 'exercice5.png' non trouvée dans le dossier modules.")
+            st.error("❌ Image 'exercice3.png' non trouvée dans le dossier modules.")
 
-        # Données et calculs
-        L_tot, q_val, Q_val, pos_Q = 10.0, 20.0, 20.0, 3.0
-        Ra, Rb = 114.0, 106.0
+        # --- DONNÉES DE L'IMAGE ---
+        L_ac = 6.0    # Longueur charge répartie
+        L_cd = 2.0    # Distance vide
+        L_db = 2.0    # Distance charge ponctuelle vers appui B
+        L_tot = 10.0  # Longueur totale
+        q = 20.0      # kN/m
+        F = 40.0      # kN (Charge ponctuelle au point D)
+
+        # Calcul des réactions d'appuis (Somme des moments en A = 0)
+        # Rb * 10 = (q * 6 * 3) + (F * 8)
+        Rb = ((q * 6 * 3) + (F * 8)) / L_tot
+        Ra = (q * 6 + F) - Rb
 
         st.markdown(f"""
             <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border-left: 5px solid #00d4ff; color: white; margin-bottom: 20px;">
-                <h4 style="color: #00d4ff; margin: 0;">Données du Problème</h4>
-                <p style="margin: 5px 0;">Portée : <b>{L_tot} m</b> | Charge répartie : <b>{q_val} kN/m</b></p>
-                <p style="margin: 5px 0;">Charge ponctuelle : <b>{Q_val} kN</b> à <b>{pos_Q} m</b> de l'appui A</p>
+                <h4 style="color: #00d4ff; margin: 0;">Données de l'Exercice</h4>
+                <p style="margin: 5px 0;">• Charge répartie <b>q = {q} kN/m</b> sur <b>6m</b> (de A vers C)</p>
+                <p style="margin: 5px 0;">• Charge ponctuelle <b>F = {F} kN</b> à <b>8m</b> de A (au point D)</p>
+                <p style="margin: 5px 0;">• Portée totale <b>L = {L_tot} m</b></p>
             </div>
         """, unsafe_allow_html=True)
 
-        # Métriques Réactions
+        # --- RÉACTIONS D'APPUIS ---
         c1, c2 = st.columns(2)
-        c1.metric("Réaction en A ($R_A$)", f"{Ra} kN", delta="Verticale Haut")
-        c2.metric("Réaction en B ($R_B$)", f"{Rb} kN", delta="Verticale Haut")
+        c1.metric("Réaction en A ($R_A$)", f"{Ra:.2f} kN")
+        c2.metric("Réaction en B ($R_B$)", f"{Rb:.2f} kN")
 
-        # Génération des diagrammes
-        x = np.linspace(0, L_tot, 500)
-        # Effort tranchant V(x)
-        V = np.where(x <= pos_Q, Ra - q_val*x, (Ra - Q_val) - q_val*x)
-        # Moment fléchissant M(x)
-        M = np.where(x <= pos_Q, Ra*x - (q_val*x**2)/2, Ra*x - Q_val*(x-pos_Q) - (q_val*x**2)/2)
+        # --- CALCULS DES DIAGRAMMES ---
+        x = np.linspace(0, L_tot, 1000)
+        V = []
+        M = []
 
-        # Graphiques
+        for val in x:
+            # Effort Tranchant V(x)
+            if val <= 6:
+                v_curr = Ra - q * val
+                m_curr = Ra * val - (q * val**2) / 2
+            elif val <= 8:
+                v_curr = Ra - q * 6
+                m_curr = Ra * val - (q * 6 * (val - 3))
+            else:
+                v_curr = Ra - q * 6 - F
+                m_curr = Ra * val - (q * 6 * (val - 3)) - F * (val - 8)
+            V.append(v_curr)
+            M.append(m_curr)
+
+        # --- AFFICHAGE GRAPHIQUE ---
         plt.style.use('dark_background')
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
         fig.patch.set_facecolor('#0e1117')
 
         # V(x)
-        ax1.plot(x, V, color='#00d4ff', lw=2.5)
-        ax1.fill_between(x, V, color='#00d4ff', alpha=0.1)
+        ax1.plot(x, V, color='#00d4ff', lw=2)
+        ax1.fill_between(x, V, color='#00d4ff', alpha=0.2)
         ax1.axhline(0, color='white', lw=1)
-        ax1.set_title("Diagramme de l'Effort Tranchant V(x)", color='#00d4ff')
-        ax1.set_ylabel("V (kN)")
+        ax1.set_title("Effort Tranchant V (kN)", color='#00d4ff')
         ax1.grid(True, alpha=0.1)
 
         # M(x)
-        ax2.plot(x, M, color='#ff4b4b', lw=2.5)
-        ax2.fill_between(x, M, color='#ff4b4b', alpha=0.1)
+        ax2.plot(x, M, color='#ff4b4b', lw=2)
+        ax2.fill_between(x, M, color='#ff4b4b', alpha=0.2)
         ax2.axhline(0, color='white', lw=1)
-        ax2.set_title("Diagramme du Moment Fléchissant M(x)", color='#ff4b4b')
-        ax2.set_ylabel("M (kNm)")
-        ax2.set_xlabel("Position x (m)")
+        ax2.set_title("Moment Fléchissant M (kNm)", color='#ff4b4b')
+        ax2.invert_yaxis()  # Convention RDM (Moment vers le bas)
         ax2.grid(True, alpha=0.1)
 
-        plt.tight_layout()
         st.pyplot(fig)
-        
-        
 
-        # Tableau de synthèse
-        with st.expander("📊 Détails des valeurs aux points singuliers", expanded=False):
-            data = {
-                "Position x (m)": ["0 (Appui A)", "3 (Avant Q)", "3 (Après Q)", "10 (Appui B)"],
-                "V (kN)": [Ra, Ra - q_val*3, Ra - q_val*3 - Q_val, -Rb],
-                "M (kNm)": [0, Ra*3 - (q_val*3**2)/2, Ra*3 - (q_val*3**2)/2, 0]
+        # --- TABLEAU DES VALEURS CLÉS ---
+        with st.expander("📊 Voir les valeurs remarquables", expanded=True):
+            points = {
+                "Point": ["A (x=0)", "C (x=6)", "D (x=8)", "B (x=10)"],
+                "Effort Tranchant V (kN)": [f"{Ra:.2f}", f"{Ra - q*6:.2f}", f"{Ra - q*6:.2f} / {Ra - q*6 - F:.2f}", f"{-Rb:.2f}"],
+                "Moment Fléchissant M (kNm)": ["0.00", f"{Ra*6 - (q*6**2)/2:.2f}", f"{Ra*8 - (q*6*5):.2f}", "0.00"]
             }
-            st.table(data)
+            st.table(points)
 
-        # Redirection
         st.divider()
-        st.success("📝 **Analyse terminée.** Voulez-vous consulter la démonstration mathématique complète ?")
-        
-        if st.button("🚀 Ouvrir la correction détaillée"):
-            # S'assurer que 'nav_menu' est bien utilisé dans le radio de app.py
+        if st.button("🚀 Consulter la méthode de calcul complète"):
             st.session_state.nav_menu = "📝 Cisaillement / Flexion"
             st.rerun()
-
-
-
