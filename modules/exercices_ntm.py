@@ -110,12 +110,12 @@ def run():
         st.subheader("📍 Étude Approfondie : Poutre Iso-statique (Ex 3)")
 
         base_path = os.path.dirname(__file__)
-        img_path = os.path.join(base_path, "Ex3.png")
+        img_path = os.path.join(base_path, "Ex4.png")
 
         if os.path.exists(img_path):
             st.image(img_path, caption="Schéma statique original", use_container_width=True)
         else:
-            st.error("❌ Fichier 'Ex3.png' introuvable dans le dossier modules.")
+            st.error("❌ Fichier 'Ex5.png' introuvable dans le dossier modules.")
 
         L1, L2, L3 = 6.0, 2.0, 2.0
         L_tot = L1 + L2 + L3
@@ -187,3 +187,4 @@ def run():
         if st.button("📖 Étudier la théorie"):
             st.session_state.nav_menu = "📝 Cisaillement / Flexion"
             st.rerun()
+
