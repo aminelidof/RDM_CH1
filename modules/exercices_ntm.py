@@ -120,7 +120,8 @@ def run():
             ax_f[1].plot(x_f, m_f, color='#ff4b4b')
             st.pyplot(fig_f)
 
-elif choix == "Ex 5 : Cas Combiné (PFS + NTM)":
+# --- EXERCICE 5 : CAS COMPLET
+     elif choix == "Ex 5 : Cas Combiné (PFS + NTM)":
         st.subheader("📍 Étude d'une poutre avec charges combinées")
 
         # --- GESTION DU CHEMIN D'IMAGE ---
@@ -200,3 +201,4 @@ elif choix == "Ex 5 : Cas Combiné (PFS + NTM)":
             # Vérifiez bien que ce nom est identique à celui dans votre menu app.py
             st.session_state.nav_menu = "📝 Cisaillement / Flexion"
             st.rerun()
+
