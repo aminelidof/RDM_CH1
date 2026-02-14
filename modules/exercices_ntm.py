@@ -124,11 +124,18 @@ def run():
     elif choix == "Ex 5 : Cas Combiné (PFS + NTM)":
         st.subheader("📍 Étude d'une poutre avec charges combinées")
 
-        try:
-            st.image("modules/exercice5.png", 
-                     caption="Géométrie de la barre et sollicitations", use_container_width=True)
-        except:
-            st.warning("⚠️ Image 'image_3bb9c8.png' non trouvée.")
+# --- GESTION DU CHEMIN D'IMAGE ---
+        import os
+        base_path = os.path.dirname(__file__)
+        img_path_ex5 = os.path.join(base_path, "exercice5.png")
+
+        if os.path.exists(img_path_ex5):
+            st.image(img_path_ex5, 
+                     caption="Modélisation de la poutre et des charges", 
+                     use_container_width=True)
+        else:
+            st.error(f"❌ Image 'exercice5.png' non trouvée dans le dossier modules.")
+            st.info("Vérifiez que le fichier est bien nommé 'exercice5.png' (tout en minuscules) sur GitHub.")
 
         
         # Données de l'exercice
@@ -171,6 +178,7 @@ def run():
             st.session_state.nav_menu = "📝 Cisaillement / Flexion" 
 
             st.rerun()
+
 
 
 
