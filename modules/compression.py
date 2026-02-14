@@ -6,15 +6,18 @@ def run():
     st.title("📏 Exercice : Diagrammes N et Sigma")
     st.markdown("### Étude d'une barre à sections variables")
 
-# --- INSERTION DE L'IMAGE ---
-    # Correction : Utilisation d'un 'r' devant le chemin et précision du fichier
-    # Assurez-vous que le nom du fichier (ex: image_exercice.png) est correct
-    try:
-        st.image("modules/exercice1.png", 
-                 caption="Schéma de la barre et des forces appliquées", 
-                 use_container_width=True)
-    except:
-        st.warning("⚠️ Image non trouvée. Vérifiez que le fichier image est bien dans le dossier 'modules'.")
+# Déterminer le chemin du dossier actuel
+base_path = os.path.dirname(__file__)
+image_path = os.path.join(base_path, "exercice1.png")
+
+try:
+    # On vérifie si le fichier existe avant de tenter l'affichage
+    if os.path.exists(image_path):
+        st.image(image_path, caption="Schéma de la barre - Exercice 1", use_container_width=True)
+    else:
+        st.warning(f"⚠️ Fichier '{image_path}' introuvable sur le serveur.")
+except Exception as e:
+    st.error(f"Erreur lors du chargement de l'image : {e}")
 
     # --- DONNÉES DE L'EXERCICE ---
     st.info(r"""
@@ -97,4 +100,5 @@ def run():
     st.latex(rf"\Delta L_{{total}} = {deltaL_tot:.4f}\ \text{{mm}}")
 
     st.success(rf"Longueur finale : $L_{{f}} = {400 + deltaL_tot:.4f}\ \text{{mm}}$")
+
 
