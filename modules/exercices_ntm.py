@@ -105,18 +105,19 @@ def run():
             ax_f[1].plot(x_f, m_f, color='#ff4b4b')
             st.pyplot(fig_f)
 
-    # --- EXERCICE 5 : CAS COMBINÉ (CORRIGÉ ET ALIGNÉ) ---
+ # --- EXERCICE 5 : CAS COMBINÉ (OPTIMISÉ) ---
     elif choix == "Ex 5 : Cas Combiné (PFS + NTM)":
-        st.subheader("📍 Étude Approfondie : Poutre Iso-statique (Ex 3)")
+        st.subheader("📍 Étude Approfondie : Poutre avec charges mixtes")
 
         base_path = os.path.dirname(__file__)
-        img_path = os.path.join(base_path, "Ex3.png")
+        img_path = os.path.join(base_path, "Ex4.png")
 
         if os.path.exists(img_path):
-            st.image(img_path, caption="Schéma statique original", use_container_width=True)
+            st.image(img_path, caption="Schéma de la structure", use_container_width=True)
         else:
-            st.error("❌ Fichier 'Ex3.png' introuvable dans le dossier modules.")
+            st.error("❌ Image 'Ex3.png' introuvable.")
 
+        # --- PARAMÈTRES ET RÉACTIONS ---
         L1, L2, L3 = 6.0, 2.0, 2.0
         L_tot = L1 + L2 + L3
         q, F = 20.0, 40.0
@@ -125,11 +126,20 @@ def run():
         Rq = q * L1
         Rb = (Rq * (L1/2) + F * dist_F) / L_tot
         Ra = (Rq + F) - Rb
-
         x0 = Ra / q
-        Mmax = Ra * x0 - (q * x0**2) / 2 if x0 <= L1 else 0
+        Mmax = Ra * x0 - (q * x0**2) / 2
 
-        tab_diag, tab_pfs, tab_equa = st.tabs(["📊 Graphiques", "⚖️ Équilibre (PFS)", "✂️ Coupures Analytiques"])
+        # --- AFFICHAGE CLAIR DES DONNÉES ---
+        st.markdown(f"""
+        <div style="background-color: #111; padding: 15px; border-radius: 10px; border-left: 5px solid #ff4b4b;">
+            <b style="color: #00d4ff;">Données :</b><br>
+            • Charge répartie : <b>{q} kN/m</b> sur 6m (Résultante $R_q = {Rq} \text{{ kN}}$)<br>
+            • Charge ponctuelle : <b>{F} kN</b> à x = 8m<br>
+            • Réactions calculées : <span style="color: #00d4ff;">$R_A = {Ra:.2f} \text{{ kN}}$</span> et <span style="color: #00d4ff;">$R_B = {Rb:.2f} \text{{ kN}}$</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        tab_diag, tab_sol = st.tabs(["📊 Diagrammes NTM", "📝 Résolution Détaillée"])
 
         with tab_diag:
             x = np.linspace(0, L_tot, 1000)
@@ -145,45 +155,53 @@ def run():
                 M_vals.append(m)
 
             plt.style.use('dark_background')
-            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 9))
-            fig.patch.set_facecolor('#0e1117')
-            ax1.plot(x, V_vals, color='#00d4ff', lw=2.5)
-            ax1.fill_between(x, V_vals, color='#00d4ff', alpha=0.15)
-            ax1.set_title("Diagramme de l'Effort Tranchant V (kN)")
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
             
-            ax2.plot(x, M_vals, color='#ff4b4b', lw=2.5)
-            ax2.fill_between(x, M_vals, color='#ff4b4b', alpha=0.15)
-            ax2.invert_yaxis()
-            ax2.set_title("Diagramme du Moment Fléchissant M (kNm)")
+            # Effort Tranchant
+            ax1.plot(x, V_vals, color='#00d4ff', lw=2)
+            ax1.fill_between(x, V_vals, color='#00d4ff', alpha=0.1)
+            ax1.set_title("Effort Tranchant V (kN)", color='#00d4ff', fontsize=14)
+            ax1.grid(alpha=0.2)
+            
+            # Moment Fléchissant
+            ax2.plot(x, M_vals, color='#ff4b4b', lw=2)
+            ax2.fill_between(x, M_vals, color='#ff4b4b', alpha=0.1)
+            ax2.invert_yaxis()  # Convention RDM
+            ax2.set_title("Moment Fléchissant M (kNm)", color='#ff4b4b', fontsize=14)
+            ax2.grid(alpha=0.2)
+            
             st.pyplot(fig)
 
-        with tab_pfs:
-            st.markdown(f"""
-            <div style="background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; color: white;">
-                <h3 style="color: #00d4ff;">1. Modélisation</h3>
-                <p>$R_q = q \cdot L_1 = {Rq} \text{{ kN}}$ à $x = 3 \text{{ m}}$</p>
-                <h3 style="color: #00d4ff;">2. Équilibres</h3>
-                <p>$\sum M_{{/A}} = 0 \implies R_B = {Rb:.2f} \text{{ kN}}$</p>
-                <p>$\sum F_y = 0 \implies R_A = {Ra:.2f} \text{{ kN}}$</p>
-            </div>
-            """, unsafe_allow_html=True)
+        with tab_sol:
+            st.info("### 1. Équilibre Statique (PFS)")
+            st.latex(rf"\sum M_{{/A}} = 0 \implies R_B \cdot 10 - ({Rq} \cdot 3) - ({F} \cdot 8) = 0")
+            st.latex(rf"R_B = \frac{{{Rq \cdot 3} + {F \cdot 8}}}{{10}} = {Rb:.2f} \text{{ kN}}")
+            
+            st.info("### 2. Équations analytiques")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("**Zone 1 : $x \in [0, 6]$**")
+                st.latex(rf"V(x) = {Ra:.2f} - 20x")
+                st.latex(rf"M(x) = {Ra:.2f}x - 10x^2")
+            with c2:
+                st.markdown("**Zone 2 : $x \in [6, 8]$**")
+                st.latex(rf"V(x) = {Ra - Rq:.2f}")
+                st.latex(rf"M(x) = {Ra:.2f}x - {Rq}(x - 3)")
 
-        with tab_equa:
-            st.markdown(f"""
-            <div style="color: white;">
-                <h3 style="color: #ff4b4b;">Tronçon I : [0, 6]</h3>
-                <p>$V(x) = {Ra:.2f} - 20x$ | $M(x) = {Ra:.2f}x - 10x^2$</p>
-                <h3 style="color: #ff4b4b;">Tronçon II : [6, 8]</h3>
-                <p>$V(x) = {Ra-Rq:.2f}$ | $M(x) = {Ra:.2f}x - 120(x-3)$</p>
-            </div>
-            """, unsafe_allow_html=True)
+            st.success(f"### 3. Moment Maximum")
+            st.write(f"Le moment est maximum quand $V(x) = 0$, soit à $x = {x0:.2f} \text{{ m}}$.")
+            st.latex(rf"M_{{max}} = {Mmax:.2f} \text{{ kNm}}")
 
-        st.table({
-            "Position x (m)": ["0 (A)", f"{x0:.2f} (V=0)", "6 (C)", "8 (D)", "10 (B)"],
-            "Effort V (kN)": [f"{Ra:.2f}", "0.00", f"{Ra-Rq:.2f}", f"{Ra-Rq-F:.2f}", f"{-Rb:.2f}"],
-            "Moment M (kNm)": ["0.00", f"{Mmax:.2f}", f"{Ra*6-360:.2f}", f"{Ra*8-600:.2f}", "0.00"]
-        })
-        
-        if st.button("📖 Étudier la théorie"):
+        # --- TABLEAU RÉCAPITULATIF FINAL ---
+        st.markdown("### 📋 Synthèse des points clés")
+        summary_data = {
+            "Point": ["A (Appui)", "Sommet Parabole", "C (Fin charge q)", "D (Charge F)", "B (Appui)"],
+            "Position x [m]": ["0.00", f"{x0:.2f}", "6.00", "8.00", "10.00"],
+            "V [kN]": [f"{Ra:.2f}", "0.00", f"{Ra-Rq:.2f}", f"{Ra-Rq-F:.2f}", f"{-Rb:.2f}"],
+            "M [kNm]": ["0.00", f"{Mmax:.2f}", f"{Ra*6-(q*6**2)/2:.2f}", f"{Ra*8-Rq*5:.2f}", "0.00"]
+        }
+        st.table(summary_data)
+
+        if st.button("📖 Consulter la théorie complète"):
             st.session_state.nav_menu = "📝 Cisaillement / Flexion"
             st.rerun()
