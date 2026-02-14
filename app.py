@@ -6,18 +6,41 @@ from modules import accueil, appuis, pfs, theorie_ntm, compression, exercice_cou
 st.set_page_config(page_title="Cours RDM - FODIL", layout="wide", page_icon="🏗️")
 load_css()
 
+theme = st.sidebar.select_slider("🌗 Mode d'affichage", options=["Clair", "Sombre"], value="Sombre")
+
+if theme == "Sombre":
+    # Force le fond sombre et texte blanc
+    st.markdown("""
+        <style>
+        .stApp { background-color: #0e1117; color: #ffffff; }
+        [data-testid="stSidebar"] { background-color: #1e2130; }
+        /* Force la visibilité des textes dans les blocs */
+        p, span, label { color: #ffffff !important; } 
+        </style>
+    """, unsafe_allow_html=True)
+else:
+    # Force le fond clair et texte noir
+    st.markdown("""
+        <style>
+        .stApp { background-color: #ffffff; color: #000000; }
+        [data-testid="stSidebar"] { background-color: #f0f2f6; }
+        p, span, label { color: #000000 !important; }
+        </style>
+    """, unsafe_allow_html=True)
+
 # Menu ordonné selon votre demande
 st.sidebar.title("🏗️ Cours RDM - FODIL")
 
 # --- AJOUT DE VOS INFORMATIONS PERSONNELLES ---
+# Dans app.py, modifiez la partie info :
 st.sidebar.markdown("""
 <div style="background-color: #1e2130; padding: 15px; border-radius: 10px; border-left: 5px solid #00d4ff; margin-bottom: 20px;">
     <h3 style="margin-top:0; color: #00d4ff; font-size: 18px;">👤 Informations</h3>
-    <p style="margin: 2px 0; font-size: 14px;"><strong>Nom :</strong> FODIL</p>
-    <p style="margin: 2px 0; font-size: 14px;"><strong>Grade :</strong> M.C.A</p>
-    <p style="margin: 2px 0; font-size: 14px;"><strong>Univ :</strong> Centre Universitaire Maghnia</p>
-    <p style="margin: 2px 0; font-size: 14px;"><strong>Tel :</strong> +213 550 13 99 87</p>
-    <p style="margin: 2px 0; font-size: 14px;"><strong>Mail :</strong> fodilmedam@gmail.com</p>
+    <p style="margin: 2px 0; font-size: 14px; color: #ffffff;"><strong>Nom :</strong> FODIL</p>
+    <p style="margin: 2px 0; font-size: 14px; color: #ffffff;"><strong>Grade :</strong> M.C.A</p>
+    <p style="margin: 2px 0; font-size: 14px; color: #ffffff;"><strong>Univ :</strong> Centre Universitaire Maghnia</p>
+    <p style="margin: 2px 0; font-size: 14px; color: #ffffff;"><strong>Tel :</strong> +213 550 13 99 87</p>
+    <p style="margin: 2px 0; font-size: 14px; color: #ffffff;"><strong>Mail :</strong> fodilmedam@gmail.com</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -65,4 +88,5 @@ elif selection == "🚀 Simulateur Universel":
     diagrammes.run("M", key_suffix="sim_m")
 
 st.sidebar.markdown("---")
+
 st.sidebar.caption("© 2026 - Expertise RDM")
