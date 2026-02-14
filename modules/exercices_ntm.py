@@ -117,98 +117,142 @@ def run():
             ax_f[1].plot(x_f, m_f, color='#ff4b4b')
             st.pyplot(fig_f)
 
-    elif choix == "Ex 5 : Cas Combiné (PFS + NTM)":
-        st.subheader("📍 Étude d'une poutre avec charges combinées (Ex 3)")
+elif choix == "Ex 5 : Cas Combiné (PFS + NTM)":
+        st.subheader("📍 Étude Approfondie : Poutre Iso-statique (Ex 3)")
 
-        # --- GESTION DE L'IMAGE ---
+        # --- CONFIGURATION ET PATH ---
         import os
         base_path = os.path.dirname(__file__)
-        # Assurez-vous de renommer votre fichier en 'exercice3.png' sur GitHub
-        img_path_ex3 = os.path.join(base_path, "Ex3.png")
+        img_path = os.path.join(base_path, "Ex3.png")
 
-        if os.path.exists(img_path_ex3):
-            st.image(img_path_ex3, caption="Schéma statique de la poutre", use_container_width=True)
+        if os.path.exists(img_path):
+            st.image(img_path, caption="Schéma statique original", use_container_width=True)
         else:
-            st.error("❌ Image 'exercice3.png' non trouvée dans le dossier modules.")
+            st.error("❌ Fichier 'Ex3.png' introuvable dans le dossier modules.")
 
-        # --- DONNÉES DE L'IMAGE ---
-        L_ac = 6.0    # Longueur charge répartie
-        L_cd = 2.0    # Distance vide
-        L_db = 2.0    # Distance charge ponctuelle vers appui B
-        L_tot = 10.0  # Longueur totale
-        q = 20.0      # kN/m
-        F = 40.0      # kN (Charge ponctuelle au point D)
+        # --- PARAMÈTRES GÉOMÉTRIQUES ET CHARGES ---
+        L1, L2, L3 = 6.0, 2.0, 2.0
+        L_tot = L1 + L2 + L3
+        q = 20.0  # kN/m
+        F = 40.0  # kN
+        dist_F = L1 + L2  # 8m de l'origine
 
-        # Calcul des réactions d'appuis (Somme des moments en A = 0)
-        # Rb * 10 = (q * 6 * 3) + (F * 8)
-        Rb = ((q * 6 * 3) + (F * 8)) / L_tot
-        Ra = (q * 6 + F) - Rb
+        # --- 1. CALCUL DES RÉACTIONS (PFS) ---
+        # Somme des moments en A = 0 : Rb*L_tot - (q*L1)*(L1/2) - F*(dist_F) = 0
+        Rq = q * L1
+        Rb = (Rq * (L1/2) + F * dist_F) / L_tot
+        Ra = (Rq + F) - Rb
 
-        st.markdown(f"""
-            <div style="background-color: #1e1e1e; padding: 15px; border-radius: 10px; border-left: 5px solid #00d4ff; color: white; margin-bottom: 20px;">
-                <h4 style="color: #00d4ff; margin: 0;">Données de l'Exercice</h4>
-                <p style="margin: 5px 0;">• Charge répartie <b>q = {q} kN/m</b> sur <b>6m</b> (de A vers C)</p>
-                <p style="margin: 5px 0;">• Charge ponctuelle <b>F = {F} kN</b> à <b>8m</b> de A (au point D)</p>
-                <p style="margin: 5px 0;">• Portée totale <b>L = {L_tot} m</b></p>
+        # --- 2. ANALYSE DU MOMENT MAXIMUM ---
+        # Le Mmax se trouve là où V(x) = 0. 
+        # Dans la zone 1 : V(x) = Ra - q*x = 0 => x0 = Ra / q
+        x0 = Ra / q
+        Mmax = Ra * x0 - (q * x0**2) / 2 if x0 <= L1 else 0
+
+        # --- 3. AFFICHAGE DES ONGLETS DE SOLUTION ---
+        tab_diag, tab_pfs, tab_equa = st.tabs(["📊 Graphiques", "⚖️ Équilibre (PFS)", "✂️ Coupures Analytiques"])
+
+        with tab_diag:
+            # Calcul des points pour les courbes
+            x = np.linspace(0, L_tot, 1000)
+            V_vals = []
+            M_vals = []
+
+            for val in x:
+                if val <= L1: # Zone 1
+                    v = Ra - q * val
+                    m = Ra * val - (q * val**2) / 2
+                elif val <= dist_F: # Zone 2
+                    v = Ra - Rq
+                    m = Ra * val - Rq * (val - L1/2)
+                else: # Zone 3
+                    v = Ra - Rq - F
+                    m = Ra * val - Rq * (val - L1/2) - F * (val - dist_F)
+                V_vals.append(v)
+                M_vals.append(m)
+
+            plt.style.use('dark_background')
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 9))
+            fig.patch.set_facecolor('#0e1117')
+
+            # Graphique Effort Tranchant
+            ax1.plot(x, V_vals, color='#00d4ff', lw=2.5)
+            ax1.fill_between(x, V_vals, color='#00d4ff', alpha=0.15)
+            ax1.axhline(0, color='white', lw=0.8)
+            ax1.set_ylabel("V (kN)", fontsize=12)
+            ax1.set_title("Diagramme de l'Effort Tranchant", color='#00d4ff', pad=15)
+            ax1.grid(True, alpha=0.1)
+
+            # Graphique Moment Fléchissant
+            ax2.plot(x, M_vals, color='#ff4b4b', lw=2.5)
+            ax2.fill_between(x, M_vals, color='#ff4b4b', alpha=0.15)
+            ax2.axhline(0, color='white', lw=0.8)
+            ax2.invert_yaxis() # Convention fibres tendues
+            ax2.set_ylabel("M (kNm)", fontsize=12)
+            ax2.set_xlabel("Position x (m)", fontsize=12)
+            ax2.set_title("Diagramme du Moment Fléchissant", color='#ff4b4b', pad=15)
+            ax2.grid(True, alpha=0.1)
+
+            # Annotation du Mmax
+            if x0 <= L1:
+                ax2.annotate(f'Mmax = {Mmax:.2f}', xy=(x0, Mmax), xytext=(x0+1, Mmax+20),
+                             arrowprops=dict(facecolor='white', shrink=0.05, width=1))
+
+            plt.tight_layout()
+            st.pyplot(fig)
+
+        with tab_pfs:
+            st.markdown(f"""
+            <div style="background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333;">
+                <h3 style="color: #00d4ff;">1. Modélisation des charges</h3>
+                <p>La charge répartie <b>q</b> est remplacée par sa résultante <b>R<sub>q</sub></b> :</p>
+                <ul>
+                    <li>$R_q = q \cdot L_1 = {q} \cdot {L1} = {Rq} \text{{ kN}}$</li>
+                    <li>Position : au milieu de AC ($x = 3 \text{{ m}}$)</li>
+                </ul>
+                <h3 style="color: #00d4ff;">2. Équations d'équilibre</h3>
+                <p><b>$\sum M_{{/A}} = 0$ :</b></p>
+                <p>$(R_q \cdot 3) + (F \cdot 8) - (R_B \cdot 10) = 0$</p>
+                <p>$({Rq} \cdot 3) + ({F} \cdot 8) = 10 \cdot R_B \implies R_B = \mathbf{{{Rb:.2f} \text{{ kN}}}}$</p>
+                <p><b>$\sum F_y = 0$ :</b></p>
+                <p>$R_A + R_B - R_q - F = 0 \implies R_A = {Rq} + {F} - {Rb:.2f} = \mathbf{{{Ra:.2f} \text{{ kN}}}}$</p>
             </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
-        # --- RÉACTIONS D'APPUIS ---
-        c1, c2 = st.columns(2)
-        c1.metric("Réaction en A ($R_A$)", f"{Ra:.2f} kN")
-        c2.metric("Réaction en B ($R_B$)", f"{Rb:.2f} kN")
+        with tab_equa:
+            st.markdown(f"""
+            <div style="color: white;">
+                <h3 style="color: #ff4b4b;">Tronçon I : $x \in [0, 6]$ (Sous charge répartie)</h3>
+                <ul>
+                    <li>$V(x) = R_A - qx = {Ra:.2f} - 20x$</li>
+                    <li>$M(x) = R_A \cdot x - \\frac{{qx^2}}{{2}} = {Ra:.2f}x - 10x^2$</li>
+                    <li><i>Note : V(x)=0 à $x = {x0:.2f}m$, d'où $M_{{max}} = {Mmax:.2f} \text{{ kNm}}$</i></li>
+                </ul>
+                <hr style="border-color: #333;">
+                <h3 style="color: #ff4b4b;">Tronçon II : $x \in [6, 8]$ (Poutre nue)</h3>
+                <ul>
+                    <li>$V(x) = R_A - R_q = {Ra - Rq:.2f} \text{{ kN}}$</li>
+                    <li>$M(x) = R_A \cdot x - R_q(x - 3) = {Ra:.2f}x - 120(x - 3)$</li>
+                </ul>
+                <hr style="border-color: #333;">
+                <h3 style="color: #ff4b4b;">Tronçon III : $x \in [8, 10]$ (Après charge F)</h3>
+                <ul>
+                    <li>$V(x) = R_A - R_q - F = {Ra - Rq - F:.2f} \text{{ kN}}$</li>
+                    <li>$M(x) = R_A \cdot x - R_q(x - 3) - F(x - 8)$</li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
 
-        # --- CALCULS DES DIAGRAMMES ---
-        x = np.linspace(0, L_tot, 1000)
-        V = []
-        M = []
-
-        for val in x:
-            # Effort Tranchant V(x)
-            if val <= 6:
-                v_curr = Ra - q * val
-                m_curr = Ra * val - (q * val**2) / 2
-            elif val <= 8:
-                v_curr = Ra - q * 6
-                m_curr = Ra * val - (q * 6 * (val - 3))
-            else:
-                v_curr = Ra - q * 6 - F
-                m_curr = Ra * val - (q * 6 * (val - 3)) - F * (val - 8)
-            V.append(v_curr)
-            M.append(m_curr)
-
-        # --- AFFICHAGE GRAPHIQUE ---
-        plt.style.use('dark_background')
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
-        fig.patch.set_facecolor('#0e1117')
-
-        # V(x)
-        ax1.plot(x, V, color='#00d4ff', lw=2)
-        ax1.fill_between(x, V, color='#00d4ff', alpha=0.2)
-        ax1.axhline(0, color='white', lw=1)
-        ax1.set_title("Effort Tranchant V (kN)", color='#00d4ff')
-        ax1.grid(True, alpha=0.1)
-
-        # M(x)
-        ax2.plot(x, M, color='#ff4b4b', lw=2)
-        ax2.fill_between(x, M, color='#ff4b4b', alpha=0.2)
-        ax2.axhline(0, color='white', lw=1)
-        ax2.set_title("Moment Fléchissant M (kNm)", color='#ff4b4b')
-        ax2.invert_yaxis()  # Convention RDM (Moment vers le bas)
-        ax2.grid(True, alpha=0.1)
-
-        st.pyplot(fig)
-
-        # --- TABLEAU DES VALEURS CLÉS ---
-        with st.expander("📊 Voir les valeurs remarquables", expanded=True):
-            points = {
-                "Point": ["A (x=0)", "C (x=6)", "D (x=8)", "B (x=10)"],
-                "Effort Tranchant V (kN)": [f"{Ra:.2f}", f"{Ra - q*6:.2f}", f"{Ra - q*6:.2f} / {Ra - q*6 - F:.2f}", f"{-Rb:.2f}"],
-                "Moment Fléchissant M (kNm)": ["0.00", f"{Ra*6 - (q*6**2)/2:.2f}", f"{Ra*8 - (q*6*5):.2f}", "0.00"]
-            }
-            st.table(points)
-
-        st.divider()
-        if st.button("🚀 Consulter la méthode de calcul complète"):
+        # --- TABLEAU RÉCAPITULATIF ---
+        st.write("### 📋 Valeurs remarquables")
+        df_data = {
+            "Position x (m)": ["0 (A)", f"{x0:.2f} (V=0)", "6 (C)", "8 (D)", "10 (B)"],
+            "Effort Tranchant V (kN)": [f"{Ra:.2f}", "0.00", f"{Ra-Rq:.2f}", f"{Ra-Rq:.2f} / {Ra-Rq-F:.2f}", f"{-Rb:.2f}"],
+            "Moment Fléchissant M (kNm)": ["0.00", f"{Mmax:.2f}", f"{Ra*6-q*18:.2f}", f"{Ra*8-Rq*5:.2f}", "0.00"]
+        }
+        st.table(df_data)
+        
+        # Redirection vers cours détaillé
+        if st.button("📖 Étudier la théorie du Cisaillement / Flexion"):
             st.session_state.nav_menu = "📝 Cisaillement / Flexion"
             st.rerun()
