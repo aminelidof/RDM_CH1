@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 def run():
     st.title("📚 Exercices Corrigés : Diagrammes NTM")
@@ -18,13 +19,23 @@ def run():
     if choix == "Ex 1 : Traction (Barre à sections variables)":
         st.subheader("📍 Énoncé : Barre à sections variables (Traction)")
         
-        try:
-            st.image("modules/Ex1.png", 
-                     caption="Géométrie de la barre et sollicitations", use_container_width=True)
-        except:
-            st.warning("⚠️ Image 'image_3bb9c8.png' non trouvée.")
+# --- GESTION ROBUSTE DE L'IMAGE ---
+        # Détecte le dossier où se trouve ce fichier actuel
+        base_path = os.path.dirname(__file__)
+        # Crée le chemin vers l'image dans le même dossier
+        img_path = os.path.join(base_path, "exercice1.png")
 
-        st.markdown("**Données :** $F = 20\ kN$ ; $D = 12\ mm$ ; $L = 200\ mm$ ; $E = 200\ GPa$.")
+        try:
+            if os.path.exists(img_path):
+                st.image(img_path, 
+                         caption="Géométrie de la barre et sollicitations", 
+                         use_container_width=True)
+            else:
+                st.warning(f"⚠️ Image '{img_path}' non trouvée sur le serveur GitHub.")
+        except Exception as e:
+            st.error(f"Erreur lors du chargement : {e}")
+
+        st.markdown("**Données :** $F = 20\\ kN$ ; $D = 12\\ mm$ ; $L = 200\\ mm$ ; $E = 200\\ GPa$.")
 
         with st.expander("✅ Voir la correction détaillée (N, σ et ΔL)"):
             st.markdown("""
@@ -158,4 +169,5 @@ def run():
             st.session_state.nav_menu = "📝 Cisaillement / Flexion" 
 
             st.rerun()
+
 
