@@ -51,24 +51,45 @@ def run():
     
     st.success(r"Résultats validés : $R_A = 114\ \text{kN}$ et $R_B = 106\ \text{kN}$")
 
-    # --- METHODE ANALYTIQUE ---
+# --- METHODE ANALYTIQUE ---
     st.header("3. Équations des Efforts Internes (Coupures)")
     
     tab1, tab2 = st.tabs(["Zone 1 : $0 \le x \le 3$", "Zone 2 : $3 < x \le 10$"])
     
     with tab1:
         st.markdown("**Coupure avant la charge ponctuelle :**")
+        st.info("Somme des forces : $V(x) = R_A - q \cdot x$")
         st.latex(r"V_1(x) = 114 - 20x")
+        
+        st.info("Somme des moments : $M(x) = R_A \cdot x - q \cdot \frac{x^2}{2}$")
         st.latex(r"M_1(x) = 114x - 10x^2")
-        # Notez le 'r' avant les guillemets pour éviter l'erreur sur \text
-        st.write(r"À $x=3\text{m}$ : $V = 54\text{ kN}$ et $M = 252\text{ kNm}$")
+        
+        st.markdown("**Résultats aux limites :**")
+        st.write(r"À $x=0\text{m}$ : $V = 114\text{ kN}$ , $M = 0\text{ kNm}$")
+        st.write(r"À $x=3\text{m}$ : $V = 114 - 20(3) = 54\text{ kN}$")
+        st.write(r"À $x=3\text{m}$ : $M = 114(3) - 10(3)^2 = 252\text{ kNm}$")
 
     with tab2:
         st.markdown("**Coupure après la charge ponctuelle :**")
-        st.latex(r"V_2(x) = 114 - 20 - 20x = 94 - 20x")
-        st.latex(r"M_2(x) = 114x - 20(x-3) - 10x^2")
-        st.write(r"À $x=3\text{m}$ : $V = 34\text{ kN}$ (Saut de charge)")
-
+        st.info("Prise en compte de $Q_1$ à $x=3$m : $V(x) = R_A - qx - Q_1$")
+        st.latex(r"V_2(x) = 114 - 20x - 20 = 94 - 20x")
+        
+        st.info("Bras de levier de $Q_1$ : $(x-3)$")
+        st.latex(r"M_2(x) = 114x - 10x^2 - 20(x-3)")
+        st.latex(r"M_2(x) = 94x - 10x^2 + 60")
+        
+        st.markdown("**Analyse du point de discontinuité ($x=3\text{m}$) :**")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(r"**Effort Tranchant :**")
+            st.write(r"$V_1(3) = 54\text{ kN}$")
+            st.write(r"$V_2(3) = 34\text{ kN}$")
+            st.write(r"$\Delta V = 20\text{ kN}$ (Saut)")
+        with col2:
+            st.write(r"**Moment Fléchissant :**")
+            st.write(r"$M_1(3) = 252\text{ kNm}$")
+            st.write(r"$M_2(3) = 252\text{ kNm}$")
+            st.write(r"Continuité du moment")
     # --- GRAPHIQUES ---
     st.header("4. Diagrammes des Efforts de Cohésion")
     
@@ -115,3 +136,4 @@ def run():
 
 
     st.warning(r"🎯 L'analyse montre que la section la plus sollicitée se trouve à **4.70 mètres** de l'appui A.")
+
