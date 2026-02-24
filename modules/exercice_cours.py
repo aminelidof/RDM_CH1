@@ -58,7 +58,7 @@ def run():
     
     with tab1:
         st.markdown("**Coupure avant la charge ponctuelle :**")
-        st.info("Somme des forces : $V(x) = R_A - q \cdot x$")
+        st.info(r"Somme des moments : $M(x) = R_A \cdot x - q \cdot \frac{x^2}{2}$")
         st.latex(r"V_1(x) = 114 - 20x")
         
         st.info("Somme des moments : $M(x) = R_A \cdot x - q \cdot \frac{x^2}{2}$")
@@ -136,4 +136,5 @@ def run():
 
 
     st.warning(r"🎯 L'analyse montre que la section la plus sollicitée se trouve à **4.70 mètres** de l'appui A.")
+
 
