@@ -71,29 +71,16 @@ def run():
         st.latex(r"M_1(x) = 114x - 10x^2")
         
         st.markdown("---")
-        st.markdown("**Résultats aux limites :**")
-        
-        # Utilisation de colonnes pour un affichage propre et aéré
-        col1, col2 = st.columns(2)
-        with col1:
-            st.write(r"**À $x=0\text{ m}$ :**")
-            st.latex(r"V = 114 \text{ kN}")
-            st.latex(r"M = 0 \text{ kNm}")
-        
-        with col2:
-            st.write(r"**À $x=3\text{ m}$ :**")
-            st.latex(r"V = 54 \text{ kN}")
-            st.latex(r"M = 252 \text{ kNm}")
         
         # --- Résultats ---
         st.markdown("**Résultats détaillés aux limites :**")
         col1, col2 = st.columns(2)
         with col1:
-            st.write("**À $x=0\text{ m}$ :**")
+            st.write(r"**À $x=0\text{ m}$ :**")
             st.write(r"$V = 114\text{ kN}$")
             st.write(r"$M = 0\text{ kNm}$")
         with col2:
-            st.write("**À $x=3\text{ m}$ :**")
+            st.write(r"**À $x=3\text{ m}$ :**")
             st.write(r"$V = 114 - 20(3) = 54\text{ kN}$")
             st.write(r"$M = 114(3) - 10(3)^2 = 252\text{ kNm}$")
 
@@ -164,6 +151,7 @@ def run():
 
 
     st.warning(r"🎯 L'analyse montre que la section la plus sollicitée se trouve à **4.70 mètres** de l'appui A.")
+
 
 
 
