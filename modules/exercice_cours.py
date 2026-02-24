@@ -86,25 +86,43 @@ def run():
 
     with tab2:
         st.markdown("**Coupure après la charge ponctuelle :**")
-        st.info("Prise en compte de $Q_1$ à $x=3$m : $V(x) = R_A - qx - Q_1$")
+        
+        # --- Équations ---
+        st.markdown(r"ℹ️ **Effort Tranchant :** $V_2(x) = R_A - qx - Q_1$")
         st.latex(r"V_2(x) = 114 - 20x - 20 = 94 - 20x")
         
-        st.info("Bras de levier de $Q_1$ : $(x-3)$")
-        st.latex(r"M_2(x) = 114x - 10x^2 - 20(x-3)")
-        st.latex(r"M_2(x) = 94x - 10x^2 + 60")
+        st.markdown(r"ℹ️ **Moment Fléchissant :** $M_2(x) = R_A \cdot x - q \cdot \frac{x^2}{2} - Q_1(x-3)$")
+        st.latex(r"M_2(x) = 114x - 10x^2 - 20(x-3) = 94x - 10x^2 + 60")
         
-        st.markdown("**Analyse du point de discontinuité ($x=3\text{m}$) :**")
+        st.markdown("---")
+        
+        # --- Analyse à x=3m ---
+        st.markdown("**Analyse au point de charge ($x=3\text{m}$) :**")
         col1, col2 = st.columns(2)
         with col1:
-            st.write(r"**Effort Tranchant :**")
+            st.write(r"**Effort Tranchant (Saut) :**")
             st.write(r"$V_1(3) = 54\text{ kN}$")
             st.write(r"$V_2(3) = 34\text{ kN}$")
-            st.write(r"$\Delta V = 20\text{ kN}$ (Saut)")
+            st.success(r"$\Delta V = 20\text{ kN}$")
         with col2:
             st.write(r"**Moment Fléchissant :**")
             st.write(r"$M_1(3) = 252\text{ kNm}$")
             st.write(r"$M_2(3) = 252\text{ kNm}$")
-            st.write(r"Continuité du moment")
+            st.success(r"Continuité du moment")
+
+        st.markdown("---")
+
+        # --- Résultats à x=10m ---
+        st.markdown("**Résultats à l'extrémité ($x=L=10\text{m}$) :**")
+        col3, col4 = st.columns(2)
+        with col3:
+            st.write(r"**À l'appui B :**")
+            st.write(r"$V(10) = 94 - 20(10)$")
+            st.latex(r"V(10) = -106\text{ kN} = -R_B")
+        with col4:
+            st.write(r"**Vérification de l'équilibre :**")
+            st.write(r"$M(10) = 94(10) - 10(10)^2 + 60$")
+            st.latex(r"M(10) = 0\text{ kNm}")
     # --- GRAPHIQUES ---
     st.header("4. Diagrammes des Efforts de Cohésion")
     
@@ -151,6 +169,7 @@ def run():
 
 
     st.warning(r"🎯 L'analyse montre que la section la plus sollicitée se trouve à **4.70 mètres** de l'appui A.")
+
 
 
 
