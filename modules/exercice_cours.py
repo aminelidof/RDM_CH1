@@ -59,27 +59,31 @@ def run():
     with tab1:
         st.markdown("**Coupure avant la charge ponctuelle :**")
         
-        # --- Effort Tranchant ---
-        st.markdown(
-            """
-            <div style="background-color: #e1f5fe; padding: 10px; border-left: 5px solid #01579b; border-radius: 5px;">
-            ℹ️ <b>Effort Tranchant :</b> La somme des forces à gauche de la coupure.
-            </div>
-            """, unsafe_allow_html=True
-        )
-        st.latex(r"V_1(x) = R_A - q \cdot x = 114 - 20x")
+        # Section Effort Tranchant
+        st.write("ℹ️ **Somme des forces verticales :**")
+        st.latex(r"V(x) = R_A - q \cdot x")
+        st.latex(r"V_1(x) = 114 - 20x")
         
-        # --- Moment Fléchissant ---
-        st.markdown(
-            """
-            <div style="background-color: #e1f5fe; padding: 10px; border-left: 5px solid #01579b; border-radius: 5px; margin-top: 10px;">
-            ℹ️ <b>Somme des moments :</b> $M(x) = R_A \cdot x - q \cdot \\frac{x^2}{2}$
-            </div>
-            """, unsafe_allow_html=True
-        )
+        # Section Moment Fléchissant
+        st.write("ℹ️ **Somme des moments au point x :**")
+        # Ici on utilise latex pour la formule seule pour éviter le bug d'affichage
+        st.latex(r"M(x) = R_A \cdot x - q \cdot \frac{x^2}{2}")
         st.latex(r"M_1(x) = 114x - 10x^2")
         
         st.markdown("---")
+        st.markdown("**Résultats aux limites :**")
+        
+        # Utilisation de colonnes pour un affichage propre et aéré
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(r"**À $x=0\text{ m}$ :**")
+            st.latex(r"V = 114 \text{ kN}")
+            st.latex(r"M = 0 \text{ kNm}")
+        
+        with col2:
+            st.write(r"**À $x=3\text{ m}$ :**")
+            st.latex(r"V = 54 \text{ kN}")
+            st.latex(r"M = 252 \text{ kNm}")
         
         # --- Résultats ---
         st.markdown("**Résultats détaillés aux limites :**")
@@ -160,6 +164,7 @@ def run():
 
 
     st.warning(r"🎯 L'analyse montre que la section la plus sollicitée se trouve à **4.70 mètres** de l'appui A.")
+
 
 
 
